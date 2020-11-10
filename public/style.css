@@ -1,0 +1,136 @@
+body {
+  background-color: #eee;
+}
+#wrapper,
+#joinRoom {
+  /* width: 80%; */
+  height: auto;
+  margin: auto;
+}
+#txtUsername {
+  background-color: transparent;
+  border: solid 1px black;
+}
+
+#left {
+  width: 30%;
+  float: left;
+  background-color: #f0f2d0;
+}
+#right {
+  width: 70%;
+  float: right;
+  background-color: #d4f9f8;
+}
+#left,
+#right,
+#joinRoom-left,
+#joinRoom-right {
+  min-height: 300px;
+}
+#boxTitle {
+  border: solid 1px black;
+  padding: 50x;
+  text-align: center;
+  font-weight: bold;
+}
+#boxContent {
+  border: solid 1px black;
+  border-top: none;
+  padding: 5px;
+  text-align: center;
+}
+.currentUser {
+}
+#sayHi {
+  text-align: right;
+}
+#listRoom {
+  height: 200px;
+  background-color: #fcead4;
+}
+#txtMessage {
+  background-color: transparent;
+  border: solid 1px black;
+}
+
+.boxRoom {
+  white-space: nowrap;
+  margin-left: 10px;
+  width: 90px;
+  height: 90px;
+}
+.modal-body div label,
+#startBox div label {
+  width: 100px;
+}
+
+.header {
+  font-size: 2rem;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+#listRoom li {
+  list-style-type: none;
+  display: inline-block;
+}
+
+#joinRoom {
+  min-height: 300px;
+}
+
+#joinRoom-left {
+  width: 20%;
+  background-color: bisque;
+  float: left;
+}
+
+#joinRoom-right {
+  width: 80%;
+  float: right;
+}
+#joinRoom-left-top {
+  height: 30%;
+  width: auto;
+}
+
+#joinRoom-left-bottom {
+  height: 70%;
+  width: auto;
+}
+#room-info {
+  /* display: none; */
+  margin-left: 10%;
+}
+
+#joinRoom-right {
+  background-color: #d4f9f8;
+  position: relative;
+}
+
+#startBox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: bisque;
+  padding: 50px;
+  border-radius: 10%;
+}
+
+#startBox div input {
+  width: 80px;
+  text-align: center;
+  margin: 0 3px;
+}
+
+#startBox div button {
+  padding: 0 6px;
+}
+
+#btnSubmit {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+}

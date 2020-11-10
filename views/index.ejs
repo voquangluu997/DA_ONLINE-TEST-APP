@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <title>Document</title>
+    <script type=text/javascript src=/js/index.js>
+    </script>
+
+</head>
+
+<body>
+    <%- include('auth/login');-%>
+    <div id="wrapper">
+        <div id="waitingRoom">
+            <div id="sayHi">
+                Hello <span id=currentUser> </span>
+                <button id="btnLogout" class="btn btn-small btn-primary">Logout</button>
+            </div>
+            <div id="left">
+                <div id="boxTitle">User Online</div>
+                <div id="boxContent">
+                </div>
+            </div>
+
+            <div id="right">
+                <div id="listRoom">
+                    <div class="header">Danh sách phòng thi </div>
+                    <ul>
+                        <li> 1 </li>
+                        <li> 2 </li>
+                    </ul>
+                    <!-- <button class="btn btn-secondary btn-small "> ten phong </button> -->
+                </div>
+                <input type="button" value="Luyện tập" id="btnLuyentap" class="btn btn-primary" />
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#btnThi">
+                    Tạo phòng thi
+                </button>
+                <div class="modal fade" id="btnThi" tabindex="-1" aria-labelledby="btnThiLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="btnThiLabel">Tạo phòng thi</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div> <label for="txtTenphong"> Tên phòng</label>
+                                    <input type="text" id="txtTenphong" />
+                                </div>
+
+                                <div id="createRoom-message"></div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                <button type="button" class="btn btn-primary" id="btnTaophong" data-dismiss="modal">Tạo
+                                    phòng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="joinRoom">
+        <div id="joinRoom-left">
+            <div id="joinRoom-left-top">
+                <div id="room-info">
+                    <div><label for="info-tenphong"> Tên phòng</label>
+                        <span id="info-tenphong"></span>
+                    </div>
+                    <div><label for="info-socauhoi"> Số câu hỏi</label>
+                        <span id="info-socauhoi"></span>
+                    </div>
+                    <div><label for="info-hoigian"> Thời gian(m) </label>
+                        <span id="info-thoigian"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="joinRoom-left-bottom">left bottom
+                <div class="header"> user in room </div>
+                <div id="boxUsersInRoom"></div>
+            </div>
+        </div>
+        <div id="joinRoom-right">
+            <div id="startBox" style="text-align: center;">
+                <div><label for="txtSocauhoi"> Số câu hỏi</label>
+                    <button class=" btn btn-small btn-success btnDecrement">-</button>
+                    <input type="text" id="txtSocauhoi" value="20" />
+                    <button class="btn btn-small btn-success btnIncrement">+</button>
+                </div>
+                <div><label for="txtThoigian"> Thời gian(m) </label>
+                    <button class="btn btn-small btn-success btnDecrement">-</button>
+                    <input type="text" id="txtThoigian" value="30" />
+                    <button class="btn btn-small btn-success btnIncrement">+</button>
+                </div>
+
+                <div id="roomStatus" class="alert alert-warning alert-small"> Đang chờ chủ phòng bắt đầu bài thi</div>
+                <!-- <button class="btn btn-primary text-center" id="btnStart" > Bắt đầu thi</button> -->
+            </div>
+
+            <div id='questionBox'>
+            </div>
+            <button class='btn btn-small btn-primary' id='btnSubmit' style='display:none'> Nộp bài </button>
+
+
+
+        </div>
+    </div>
+
+
+</body>
+
+</html>
