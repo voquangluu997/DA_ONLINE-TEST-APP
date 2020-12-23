@@ -1,35 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Document</title>
-</head>
+    <table id="register" >
+        <tr class="row_big colorPrimary">
+            <td>
+                <div class="text-title-big">Quiz Online</div>
+            </td>
+        </tr>
+        <tr class="row_big colorPrimary">
+            <td>
+                <div class="mb-5">
+                    <span class="text-small">USERNAME </span>
+                    <input type="text" class="colorSecondary" id="register_username">
+                </div>
+                <div>
+                    <span class="text-small">PASSWORD</span>
+                    <input type="password" class="colorSecondary" id="register_password">
+                </div>
+                <div class="mt-5">
+                    <button type="button" class="text-title-small loginButton " id="btn-register">Register</button>
+                </div>
+            </td>
+        </tr>
+        <tr class="row_big colorPrimary">
+            <td>
+                <button type="button" class="text-title-small loginButton " id="btn-back-login">Back to Login</button>
 
-<body>
+            </td>
+        </tr>
+    </table>
 
-    <div class="login-form col-6 container">
-        <form action="/auth/register" , method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" name="username" class="form-control" id="username"
-                    aria-describedby="usernameHelp" placeholder="Enter username">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" class="form-control" id="password" placeholder="Password">
-            </div>
-            <div class="form-group form-check">
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-
-</body>
-
-</html>

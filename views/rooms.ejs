@@ -1,0 +1,50 @@
+<div id="room-parent">
+    <div id="rooms" class=" colorPrimary ">
+        <div class="row_very_small colorPrimary greeting pt-2">
+            Hello <span id="current-player"> player</span>
+            <button id="btnLogout" class="btn btn-small btn-primary">Logout</button>
+        </div>
+
+        <div class="row_small colorPrimary">
+            <div class="text-title-small">Danh sách phòng thi</div>
+        </div>
+
+        <div class="roomList colorPrimary pt-4" id="roomList">
+            <!-- <button class="btn btn-danger">1</button>
+            <button class="btn btn-danger">2 </button>
+            <button class="btn btn-danger">3</button> -->
+        </div>
+    </div>
+    <div class="btnBox ">
+        <button id="btnLuyentap" class="btn btn-primary btn-small ">Luyện tập</button>
+        <!-- <button id="btnCreateRoom" class="btn btn-primary btn-small">Tạo phòng</button> -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#btnThi">
+            Tạo phòng thi
+        </button>
+    </div>
+
+    <div class="modal fade" id="btnThi" tabindex="-1" aria-labelledby="btnThiLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header ">
+                    <h5 class="modal-title" id="btnThiLabel">Tạo phòng thi</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div> <label for="txtTenphong"> Tên phòng</label>
+                        <input type="text" id="txtTenphong" placeholder="nhập tên phòng" />
+                    </div>
+                    <!-- <div class=" text-danger mt-2" id="createRoom-message"></div> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="btnTaophong" data-dismiss="modal">Tạo
+                        phòng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

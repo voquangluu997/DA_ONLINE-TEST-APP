@@ -1,19 +1,35 @@
-<div class="loginForm col-6 container" id="loginForm">
-    <form action="" , method="POST">
-        <div class="header">Login</div>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" name="username" class="form-control" id="username" aria-describedby="usernameHelp"
-                placeholder="Enter username">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" class="form-control" id="password" placeholder="Password">
-        </div>
-        <div class="form-group form-check">
-        </div>
-        <div id="login-message"></div>
-        <button type="button" class="btn btn-primary btn-small" id="btn-login">Login</button>
-        <button type="button" class="btn btn-primary btn-small" id="btn-register">Register</button>
-    </form>
-</div>
+
+
+    <table id="login">
+        <tr class="row_big colorPrimary">
+            <td>
+                <div class="text-title-big">Quiz Online</div>
+            </td>
+        </tr>
+        <tr class="row_big colorPrimary">
+            <td>
+                <div class="mb-5">
+                    <span class="text-small">USERNAME </span>
+                    <input type="text" class="colorSecondary" id="username">
+                </div>
+                <div>
+                    <span class="text-small">PASSWORD</span>
+                    <input type="password" class="colorSecondary" id="password">
+                </div>
+                <div class="mt-5">
+                    <div id="login-message"></div>
+                    <button type="button" class="text-title-small loginButton mr-3" id="btn-login">Login</button>
+                </div>
+            </td>
+        </tr>
+        <tr class="row_big colorPrimary">
+            <td>
+                <a href="#">
+                    <button type="button" class="text-title-small loginButton ml-3" id="btn-register">Click here to
+                        create new account</button>
+                </a>
+
+            </td>
+        </tr>
+    </table>
+

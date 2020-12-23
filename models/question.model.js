@@ -10,16 +10,16 @@ module.exports = db.sequelize.define("questions", {
     type: Sequelize.STRING,
   },
 
-  A: {
+  a: {
     type: Sequelize.STRING,
   },
-  B: {
+  b: {
     type: Sequelize.STRING,
   },
-  C: {
+  c: {
     type: Sequelize.STRING,
   },
-  D: {
+  d: {
     type: Sequelize.STRING,
   },
   answer: {
