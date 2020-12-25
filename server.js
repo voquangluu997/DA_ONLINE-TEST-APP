@@ -11,17 +11,9 @@ const jwt = require("jsonwebtoken");
 const io = require("socket.io")(server);
 let Player = require("./models/player");
 let Room = require("./models/room");
-
-let questionOrder = 0;
-let defaultTime = 20;
-
 let players = {};
 let rooms = {};
-let count = {};
-let currentQuestionRow = [];
-let currentRound = 0;
 let timeRemaining = 0;
-let playersOnline = 0;
 let autoplayTime = 2;
 let ltRoom = new Room();
 
@@ -50,6 +42,7 @@ io.on("connection", (socket) => {
     rooms[room._name]._time = room._time;
     rooms[room._name]._status = room._status;
     prepareGame(rooms[room._name]);
+    console.log(rooms[room._name]);
 
     io.sockets.emit("update-rooms", rooms);
     io.to(room._name).emit("display-game-form");
@@ -66,7 +59,7 @@ io.on("connection", (socket) => {
       else questionTimer(socket, rooms[room._name]);
     }, 1000);
   });
-  // luyentap(socket);
+  luyentap(socket);
 
   socket.on("click", function (data) {
     if (rooms[data.room]._isQuestionRunning) {
@@ -104,13 +97,6 @@ io.on("connection", (socket) => {
       }
     }
   });
-
-  // socket.on("playAgain", (room) => {
-  //   rooms[room._name] = room;
-  //   prepareGame(room);
-  //   socket.emit("display-master", room);
-
-  // });
 });
 
 function getSession(socket) {
@@ -149,7 +135,44 @@ function login(socket) {
     );
   });
 }
-
+function register(socket) {
+  socket.on("register", async (userInfo) => {
+    let message = "";
+    const userExisted = await User.findOne({
+      where: { username: userInfo.username },
+    });
+    const err =
+      userInfo.username == "" ||
+      userInfo.password == "" ||
+      userInfo.password.length < 6 ||
+      (userExisted && userExisted != null && userExisted != undefined);
+    if (userInfo.username == "" || userInfo.password == "") {
+      message = " username and password are not allowed to be empty ";
+    } else if (userInfo.password.length < 6) {
+      message = "password length must be at least 6 characters long";
+    } else if (userExisted) {
+      message = " Username already exist ";
+    }
+    if (err) {
+      socket.emit("register-failed", {
+        message: message,
+      });
+    } else {
+      const user = new User({
+        username: userInfo.username,
+        password: userInfo.password,
+      });
+      user.password = await bcrypt.hashSync(userInfo.password, 10);
+      try {
+        const saveUser = await user.save();
+        const token = jwt.sign({ id: saveUser.id }, process.env.SECRET_KEY);
+        loginSuccess(socket, saveUser, token);
+      } catch (err) {
+        throw err;
+      }
+    }
+  });
+}
 function loginSuccess(socket, user, token) {
   let isLG = isLogin(user.username);
   if (!isLG) {
@@ -167,6 +190,12 @@ function loginSuccess(socket, user, token) {
 
 function loginFailed(socket, message) {
   socket.emit("login-failed", {
+    message: message,
+  });
+}
+
+function registerFailed(socket, message) {
+  socket.emit("register-failed", {
     message: message,
   });
 }
@@ -238,7 +267,6 @@ function nextQuestion(socket, room) {
   timeRemaining = room._time;
   Question.findAll({ order: Sequelize.literal("rand()"), limit: 1 }).then(
     (q) => {
-      console.log(q);
       room._currentQuestion = q[0];
 
       if (room._name == "luyentap") {
@@ -326,7 +354,7 @@ function prepareGame(room) {
   room._currentQuestion = "";
   room._indexQuestion = -1;
   for (let player in room._players) {
-    room._players[player]._point = 0;
+    room._players[player]._points = 0;
     room._players[player]._lockedAnswer = "";
   }
 }

@@ -12,6 +12,16 @@ socket.on("login-failed", (data) => {
   );
 });
 
+socket.on("register-failed", (data) => {
+  $("#register-message").html("");
+  $("#register-message").append(
+    "<div class='alert alert-danger' id='error_register_message'>" +
+      data.message +
+      "</div>"
+  );
+});
+
+
 socket.on("createRoom-failed", (data) => {
   alert(data.message);
 });
@@ -149,7 +159,6 @@ socket.on("display-master", (room) => {
     room._time = $("#txtThoigian").val();
     room._status = "starting";
     socket.emit("client-send-room-info-before-start", room);
-    // socket.emit("e");
   });
 });
 socket.on("update-rooms-status", (room) => {
@@ -192,7 +201,6 @@ socket.on("show_scoreboard", (scoreBoard) => {
     $("#scoreboard-result").append(`
   <div id="btnScore"> <button id="btnLuyentapAgain" class="btn btn-primary mr-3"> Bắt đầu lại</button>
   <button id="btnBack2" class="btn btn-primary "> Rời phòng</button></div>
-  
   `);
   }
 
@@ -229,7 +237,6 @@ socket.on("update-user", (room) => {
   });
   $("#users").append("<tr></tr>");
 });
-
 socket.on("setup-luyentap", (room) => {
   $("#roomStatus").css("display", "none");
   $("#btnStart").css("display", "none");
@@ -262,12 +269,17 @@ $(document).ready(function () {
     display_login_form();
   });
 
-  // $("#btn-register").click(function () {
-  //   socket.emit("register", {
-  //     username: $("#username").val(),
-  //     password: $("#password").val(),
-  //   });
-  // });
+  $("#btn-register").click(function () {
+    socket.emit("register", {
+      username: $("#username").val(),
+      password: $("#password").val(),
+    });
+  });
+
+  $("#btn-move-register").click(function () {
+    display_register_form();
+  });
+
   $("#btnLuyentap").click(function () {
     socket.emit("luyentap");
   });
@@ -347,7 +359,6 @@ function display_game_form() {
   $("#room-parent").css("display", "none");
   $("#prepareGame").css("display", "table");
   $("#prepareGame-body").css("display", "none");
-  // $("#user-room-info").css("display", "none");
   $("#game").css("display", "table");
   $("#score").css("display", "none");
 }
@@ -364,4 +375,5 @@ function update_room_info(room) {
   $("#thoigian").html(room._time);
   $("#phong").html(room._name);
   $("#cau").html(room._totalQuestion);
+  $("#dung").html("0");
 }
