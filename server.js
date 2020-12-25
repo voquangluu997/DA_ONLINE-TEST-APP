@@ -9,7 +9,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const io = require("socket.io")(server);
-// app.set("socketio", io);
 let Player = require("./models/player");
 let Room = require("./models/room");
 
@@ -23,7 +22,8 @@ let currentQuestionRow = [];
 let currentRound = 0;
 let timeRemaining = 0;
 let playersOnline = 0;
-let autoplayTime = 3;
+let autoplayTime = 2;
+let ltRoom = new Room();
 
 const User = require("./models/user.model");
 const Question = require("./models/question.model");
@@ -46,20 +46,27 @@ io.on("connection", (socket) => {
   joinRoom(socket);
   leaveRoom(socket);
   socket.on("client-send-room-info-before-start", (room) => {
-    console.log("aa" ,room);
     rooms[room._name]._totalQuestion = room._totalQuestion;
     rooms[room._name]._time = room._time;
     rooms[room._name]._status = room._status;
+    prepareGame(rooms[room._name]);
 
-    io.sockets.emit("update-rooms-status", room._name);
+    io.sockets.emit("update-rooms", rooms);
     io.to(room._name).emit("display-game-form");
     io.to(room._name).emit("update-room-info-before-start", room);
-    nextQuestion(rooms[room._name]);
-    let startTimer = setInterval(() => {
-      if (rooms[room._name] == undefined) clearInterval(startTimer);
-      else questionTimer(rooms[room._name]);
+    nextQuestion(socket, rooms[room._name]);
+    startTimer = setInterval(() => {
+      if (
+        rooms[room._name] == undefined ||
+        (rooms[room._name]._indexQuestion ==
+          rooms[room._name]._totalQuestion - 1 &&
+          timeRemaining == 0)
+      )
+        clearInterval(startTimer);
+      else questionTimer(socket, rooms[room._name]);
     }, 1000);
   });
+  // luyentap(socket);
 
   socket.on("click", function (data) {
     if (rooms[data.room]._isQuestionRunning) {
@@ -90,11 +97,20 @@ io.on("connection", (socket) => {
             let id = rooms[room]._players[rooms[room]._master]._socketId;
             io.to(`${id}`).emit("display-master", rooms[room]);
           } else delete rooms[room]._players[socket.username];
+
+          io.to(room).emit("update-user", rooms[room]);
         }
         io.sockets.emit("update-rooms", rooms);
       }
     }
   });
+
+  // socket.on("playAgain", (room) => {
+  //   rooms[room._name] = room;
+  //   prepareGame(room);
+  //   socket.emit("display-master", room);
+
+  // });
 });
 
 function getSession(socket) {
@@ -182,6 +198,7 @@ function createRoom(socket) {
       io.sockets.emit("update-rooms", rooms);
       socket.emit("createRoom-success", rooms[room.name]);
       socket.emit("display-master", rooms[room.name]);
+      io.to(room.name).emit("update-user", rooms[room.name]);
     }
   });
 }
@@ -189,20 +206,8 @@ function createRoom(socket) {
 function leaveRoom(socket) {
   socket.on("leaveRoom", (room) => {
     socket.leave(room.name);
-    socket.emit("leaveRoom-success", rooms[room.name]);
-    var len = Object.keys(rooms[room.name]._players).length;
-    if (len == 1) {
-      delete rooms[room.name];
-    } else {
-      var master = rooms[room.name]._master;
-      if (master == rooms[room.name]._players[socket.username]._name) {
-        delete rooms[room.name]._players[socket.username];
-        rooms[room.name]._master = Object.keys(rooms[room.name]._players)[0];
-        let id = rooms[room.name]._players[rooms[room.name]._master]._socketId;
-        io.to(`${id}`).emit("display-master", rooms[room.name]);
-      } else delete rooms[room.name]._players[socket.username];
-    }
-    io.sockets.emit("update-rooms", rooms);
+    socket.emit("leaveRoom-success");
+    io.to(room.name).emit("update-user", room);
   });
 }
 
@@ -218,49 +223,55 @@ function joinRoom(socket) {
     socket.join(roomName);
     rooms[roomName]._players[socket.username] = players[socket.username];
     socket.emit("update-room-info-before-start", rooms[roomName]);
+    io.to(roomName).emit("update-user", rooms[roomName]);
   });
   io.sockets.emit("update-rooms", rooms);
 }
 
-function nextQuestion(room) {
+function nextQuestion(socket, room) {
   room._indexQuestion++;
   if (room._indexQuestion >= room.totalQuestion) {
-    // showScoreboardAndStopGame();
+    showScoreboardAndStopGame(socket, room);
     return;
   }
   room._isQuestionRunning = true;
-
   timeRemaining = room._time;
-
   Question.findAll({ order: Sequelize.literal("rand()"), limit: 1 }).then(
     (q) => {
+      console.log(q);
       room._currentQuestion = q[0];
-      io.to(room._name).emit(
-        "update_cau",
-        room._indexQuestion + 1 + "/" + room._totalQuestion
-      );
-      io.to(room._name).emit("update_timer", timeRemaining);
-      io.to(room._name).emit("update_question", q[0].content);
-      io.to(room._name).emit("update_answers", {
-        a: q[0].a,
-        b: q[0].b,
-        c: q[0].c,
-        d: q[0].d,
-      });
 
-      // io.to(`${room._players[socket.username]._socketId}`).emit(
-      //   "update_points",
-      //   room._players[socket.username]._points
-      // );
-
-      // for (let player in room._players) {
-      //   player.locked = false;
-      // }
+      if (room._name == "luyentap") {
+        socket.emit(
+          "update_cau",
+          room._indexQuestion + 1 + "/" + room._totalQuestion
+        );
+        socket.emit("update_timer", timeRemaining);
+        socket.emit("update_question", q[0].content);
+        socket.emit("update_answers", {
+          a: q[0].a,
+          b: q[0].b,
+          c: q[0].c,
+          d: q[0].d,
+        });
+      } else {
+        io.to(room._name).emit(
+          "update_cau",
+          room._indexQuestion + 1 + "/" + room._totalQuestion
+        );
+        io.to(room._name).emit("update_timer", timeRemaining);
+        io.to(room._name).emit("update_question", q[0].content);
+        io.to(room._name).emit("update_answers", {
+          a: q[0].a,
+          b: q[0].b,
+          c: q[0].c,
+          d: q[0].d,
+        });
+      }
     }
   );
 }
-
-function endQuestion(room) {
+function endQuestion(socket, room) {
   room._isQuestionRunning = false;
   let correctAnswer = room._currentQuestion.answer;
   let answers = ["a", "b", "c", "d"];
@@ -273,29 +284,101 @@ function endQuestion(room) {
   }
   for (let player in room._players) {
     let letter = room._players[player]._lockedAnswer;
-    if (room._currentQuestion.answer == room._currentQuestion[letter])
-      room._players[player]._points++;
-    io.to(room._name).emit("update_correct", correctLetter);
-    io.to(`${room._players[player]._socketId}`).emit(
-      "update_points",
-      room.players[player]._points
-    );
+
+    if (letter != "") {
+      if (room._currentQuestion.answer == room._currentQuestion[letter])
+        room._players[player]._points++;
+    }
+    if (room._name == "luyentap") {
+      socket.emit("update_correct", correctLetter);
+      socket.emit("update_points", room._players[player]._points);
+    } else {
+      io.to(room._name).emit("update_correct", correctLetter);
+      io.to(`${room._players[player]._socketId}`).emit(
+        "update_points",
+        room._players[player]._points
+      );
+    }
+    room._players[player]._lockedAnswer = "";
   }
   setTimeout(() => {
-    nextQuestion(room);
+    nextQuestion(socket, room);
   }, autoplayTime * 1000);
+}
+
+function showScoreboardAndStopGame(socket, room) {
+  let scoreBoard = [];
+  for (let player in room._players) {
+    scoreBoard.push({
+      name: player,
+      point: room._players[player]._points,
+    });
+  }
+  scoreBoard.sort((a, b) => {
+    return b.point - a.point;
+  });
+  if (room.name == "luyentap") socket.emit("show_scoreboard", scoreBoard);
+  else io.to(room._name).emit("show_scoreboard", scoreBoard);
+}
+
+function prepareGame(room) {
+  room._isQuestionRunning = false;
+  room._currentQuestion = "";
+  room._indexQuestion = -1;
+  for (let player in room._players) {
+    room._players[player]._point = 0;
+    room._players[player]._lockedAnswer = "";
+  }
 }
 
 let autoplayCounterTimer = null;
 
-function questionTimer(room) {
+function questionTimer(socket, room) {
   if (room._isQuestionRunning) {
     timeRemaining--;
 
     io.emit("update_timer", timeRemaining);
 
     if (timeRemaining <= 0) {
-      endQuestion(room);
+      endQuestion(socket, room);
     }
   }
+}
+
+function luyentap(socket) {
+  socket.on("luyentap", () => {
+    ltRoom._players[socket.username] = players[socket.username];
+    ltRoom._name = "luyentap";
+    prepareGame(ltRoom);
+    socket.emit("createRoom-success", ltRoom);
+    socket.emit("setup-luyentap", ltRoom);
+  });
+
+  socket.on("client-send-luyentap-info-before-start", (room) => {
+    prepareGame(ltRoom);
+    ltRoom._totalQuestion = room._totalQuestion;
+    ltRoom._time = room._time;
+    ltRoom._players[socket.username]._ = 0;
+
+    socket.emit("update-room-info-before-start", ltRoom);
+    socket.emit("display-game-form");
+    nextQuestion(socket, ltRoom);
+    socket.on("luyentap-click", (letter) => {
+      if (ltRoom._isQuestionRunning) {
+        ltRoom._players[socket.username]._locked = true;
+        ltRoom._players[socket.username]._lockedAnswer = letter;
+        socket.emit("lock_answer", letter);
+      }
+    });
+
+    startTimer = setInterval(() => {
+      if (
+        ltRoom == undefined ||
+        (ltRoom._indexQuestion == ltRoom._totalQuestion - 1 &&
+          timeRemaining == 0)
+      )
+        clearInterval(startTimer);
+      else questionTimer(socket, ltRoom);
+    }, 1000);
+  });
 }

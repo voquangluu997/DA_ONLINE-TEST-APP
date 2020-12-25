@@ -28,9 +28,7 @@ socket.on("createRoom-success", (room) => {
 });
 
 socket.on("leaveRoom-success", (room) => {
-  display_rooms_form();
-  $("#roomStatus").css("display", "inline-block");
-  $("#btnStart").css("display", "none");
+  window.location = "/";
 });
 
 socket.on("update_cau", function (cau) {
@@ -78,11 +76,6 @@ socket.on("update_answers", function (data) {
   $("#answer-c").html(data.c);
   $("#answer-d").html(data.d);
 
-  $("#counter-a").css("display", "none");
-  $("#counter-b").css("display", "none");
-  $("#counter-c").css("display", "none");
-  $("#counter-d").css("display", "none");
-
   if (lastLocked) {
     $("#tile-" + lastLocked).removeClass("locked");
     lastLocked = "";
@@ -120,13 +113,26 @@ socket.on("update-rooms", (rooms) => {
   $("#roomList").html("");
   for (let room in rooms) {
     $("#roomList").append(
-      `<button class='btn btn-danger btn-room' id = '${room}' >${room} 
-      </button>`
+      `<div class='btn btn-danger btn-room text-left' id = '${room}' >
+        <i class="fas fa-home"> </i> ${room}<br>
+         <i class="fas fa-user"></i>  ${
+           Object.keys(rooms[room]._players).length
+         }
+        </div>`
     );
 
+    if (rooms[room]._status == "starting") {
+      $("#" + room).removeClass("btn-danger");
+      $("#" + room).addClass("btn-success");
+    }
+
     $("#" + room).click(() => {
-      socket.emit("joinRoom", room);
-      display_prepareGame_form();
+      if (rooms[room]._status == "starting") {
+        alert("Bạn không thể tham gia vào phòng đang diễn ra");
+      } else {
+        socket.emit("joinRoom", room);
+        display_prepareGame_form();
+      }
     });
 
     socket.emit("startGame" + room, (room) => {});
@@ -139,7 +145,6 @@ socket.on("display-master", (room) => {
   document.getElementById("txtThoigian").disabled = false;
   document.getElementById("txtSocauhoi").disabled = false;
   $("#btnStart").click(() => {
-    console.log(room);
     room._totalQuestion = $("#txtSocauhoi").val();
     room._time = $("#txtThoigian").val();
     room._status = "starting";
@@ -153,6 +158,95 @@ socket.on("update-rooms-status", (room) => {
 });
 
 socket.on("server-send-questions", (data) => {});
+
+socket.on("show_scoreboard", (scoreBoard) => {
+  display_scoreBoard_form();
+  $("#scoreboard-result").html("");
+  scoreBoard.map((player, index) => {
+    $("#scoreboard-result").append(`
+    <tr>
+    <th scope="row">${index + 1}</th>
+    <td>${player.name}</td>
+    <td> ${player.point}</td>
+    </tr>
+    `);
+  });
+
+  scoreBoard.map((player, index) => {
+    $("#scoreboard-result").append(`
+    <tr style="border-top: none;" class = "row_big" >
+    <th scope="row"></th>
+    <td></td>
+    <td></td>
+    </tr>
+    `);
+  });
+
+  if (document.getElementById("phong").textContent != "luyentap") {
+    $("#scoreboard-result").append(`
+  <div id="btnScore"> <button id="btnPlayAgain" class="btn btn-primary mr-3"> Bắt đầu lại</button>
+  <button id="btnBack2" class="btn btn-primary "> Rời phòng</button></div>
+  
+  `);
+  } else {
+    $("#scoreboard-result").append(`
+  <div id="btnScore"> <button id="btnLuyentapAgain" class="btn btn-primary mr-3"> Bắt đầu lại</button>
+  <button id="btnBack2" class="btn btn-primary "> Rời phòng</button></div>
+  
+  `);
+  }
+
+  $("#btnBack2").click(function () {
+    socket.emit("leaveRoom", {
+      name: $("#phong").text(),
+    });
+  });
+
+  $("#btnPlayAgain").click(function () {
+    display_prepareGame_form();
+  });
+
+  $("#btnLuyentapAgain").click(function () {
+    display_prepareGame_form();
+    $("#btnStartLuyentap").css("display", "inline-block");
+    document.getElementById("txtThoigian").disabled = false;
+    document.getElementById("txtSocauhoi").disabled = false;
+  });
+});
+
+socket.on("update-user", (room) => {
+  $("#users").html("");
+  let users = Object.keys(room._players);
+  console.log(users);
+  $("#users-header").append(`(${users.length})`);
+
+  users.map((user) => {
+    $("#users").append(`<tr class="text-left" style="height: 20px;">
+    <td> <i class="fas fa-user mr-2"></i> ${user}
+    </td>
+    </tr>
+    `);
+  });
+  $("#users").append("<tr></tr>");
+});
+
+socket.on("setup-luyentap", (room) => {
+  $("#roomStatus").css("display", "none");
+  $("#btnStart").css("display", "none");
+  $("#user-info-room").css("display", "none");
+  $("#btnStartLuyentap").css("display", "inline-block");
+  document.getElementById("txtThoigian").disabled = false;
+  document.getElementById("txtSocauhoi").disabled = false;
+  $("#btnStartLuyentap").click(() => {
+    room._totalQuestion = $("#txtSocauhoi").val();
+    room._time = $("#txtThoigian").val();
+    room._status = "starting";
+    socket.emit("client-send-luyentap-info-before-start", room);
+    document.getElementById("txtThoigian").disabled = true;
+    document.getElementById("txtSocauhoi").disabled = true;
+    $("#btnStartLuyentap").css("display", "none");
+  });
+});
 
 $(document).ready(function () {
   $("#btn-login").click(() => {
@@ -174,6 +268,9 @@ $(document).ready(function () {
   //     password: $("#password").val(),
   //   });
   // });
+  $("#btnLuyentap").click(function () {
+    socket.emit("luyentap");
+  });
 
   $("#btnTaophong").click(function () {
     socket.emit("createRoom", {
@@ -190,11 +287,15 @@ $(document).ready(function () {
   let lt = ["a", "b", "c", "d"];
   for (let letter of lt) {
     $("#tile-" + letter).click(function () {
-      socket.emit("click", {
-        letter: letter,
-        room: document.getElementById("phong").textContent,
-        player: document.getElementById("player-name").textContent,
-      });
+      if (document.getElementById("phong").textContent == "luyentap") {
+        socket.emit("luyentap-click", letter);
+      } else {
+        socket.emit("click", {
+          letter: letter,
+          room: document.getElementById("phong").textContent,
+          player: document.getElementById("player-name").textContent,
+        });
+      }
     });
   }
 });
@@ -206,6 +307,7 @@ function display_login_form() {
   $("#room-parent").css("display", "none");
   $("#prepareGame").css("display", "none");
   $("#game").css("display", "none");
+  $("#score").css("display", "none");
 }
 
 function display_register_form() {
@@ -215,6 +317,7 @@ function display_register_form() {
   $("#room-parent").css("display", "none");
   $("#prepareGame").css("display", "none");
   $("#game").css("display", "none");
+  $("#score").css("display", "none");
 }
 
 function display_rooms_form() {
@@ -223,6 +326,7 @@ function display_rooms_form() {
   $("#room-parent").css("display", "table");
   $("#prepareGame").css("display", "none");
   $("#game").css("display", "none");
+  $("#score").css("display", "none");
 }
 
 function display_prepareGame_form() {
@@ -232,7 +336,8 @@ function display_prepareGame_form() {
   $("#room-parent").css("display", "none");
   $("#prepareGame").css("display", "table");
   $("#game").css("display", "none");
-  $("#prepareGame-body").css("display", "contents");
+  $("#prepareGame-body").css("display", "table");
+  $("#score").css("display", "none");
 }
 
 function display_game_form() {
@@ -240,10 +345,21 @@ function display_game_form() {
   $("#error_login_message").css("display", "none");
   $("#register").css("display", "none");
   $("#room-parent").css("display", "none");
+  $("#prepareGame").css("display", "table");
   $("#prepareGame-body").css("display", "none");
+  // $("#user-room-info").css("display", "none");
   $("#game").css("display", "table");
+  $("#score").css("display", "none");
 }
 
+function display_scoreBoard_form() {
+  $("#login").css("display", "none");
+  $("#error_register_message").css("display", "none");
+  $("#register").css("display", "none");
+  $("#room-parent").css("display", "none");
+  $("#prepareGame").css("display", "none");
+  $("#score").css("display", "table");
+}
 function update_room_info(room) {
   $("#thoigian").html(room._time);
   $("#phong").html(room._name);

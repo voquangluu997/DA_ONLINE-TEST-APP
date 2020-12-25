@@ -88,15 +88,26 @@ table,
   height: 100%;
   color: #2c2c54;
 }
+
+#users td, #user-header{
+  text-align: left;
+  padding-left: 50px;
+
+}
 .display-none {
   display: contents;
 }
-
-.inforRoom-box input {
-}
+/* 
+.user-infor-room {
+ background-color: #14eb14;
+} */
 
 td {
   width: 50%;
+}
+
+#score td {
+  width: 100%;
 }
 
 .row_very_small {
@@ -145,10 +156,21 @@ td {
 }
 
 .btn-room {
-  min-width: 50px;
-  min-height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 80px;
+  min-height: 80px;
   padding: 2px;
   margin: 2px;
+
+}
+
+#btnScore {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 .answerButton {
@@ -238,15 +260,3 @@ select {
   box-sizing: content-box;
   font-size: 30px;
 }
-/* 
-.scoreboardData {
-  padding: 15px 0;
-  border: 30px solid #2c2c54;
-  border-bottom: 5px  solid #2c2c54;
-  border-top: none;
-} */
-/* 
-#summary {
-  max-width: 65em;
-  margin: 0 auto;
-} */

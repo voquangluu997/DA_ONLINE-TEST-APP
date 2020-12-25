@@ -26,30 +26,47 @@
             </table>
         </td>
     </tr>
+    <tr>
+        <td class="colorPrimary">
+            <table id="prepareGame-body">
+                <tr class="row_very_big colorSecondary inforRoom-box">
+                    <td style="width : 20%" class="colorSecondary">
+                        <table id="user-info-room" class=" colorSecondary" style="margin-top: 50px;">
+                            <thead>
+                                <tr>
+                                    <th scope="col" id="user-header">Người tham gia</th>
+                                </tr>
+                            </thead class="text-left">
+                            <tbody id="users">    
+                            </tbody>
+                        </table>
+                    </td>
+                    <td style="width:80%">
+                        <div><label for="txtSocauhoi" style="width : 120px"> Số câu hỏi</label>
+                            <button class=" btn btn-small btn-success btnDecrement">-</button>
+                            <input type="text" id="txtSocauhoi" disabled=true />
+                            <button class="btn btn-small btn-success btnIncrement">+</button>
+                        </div>
+                        <div class="mt-2"><label for="txtThoigian" style="width : 120px"> Thời gian(s)/câu</label>
+                            <button class="btn btn-small btn-success btnDecrement">-</button>
+                            <input type="text" id="txtThoigian" disabled=true />
+                            <button class="btn btn-small btn-success btnIncrement">+</button>
+                        </div>
+                        <div id="roomStatus" class="alert alert-warning alert-small mt-2"
+                            style="display: inline-block;"> Đang
+                            chờ
+                            chủ phòng bắt đầu bài thi
+                        </div>
 
-    <tr class="row_very_big colorSecondary inforRoom-box" id="prepareGame-body">
-        <td colspan="2">
-            <div><label for="txtSocauhoi" style="width : 120px"> Số câu hỏi</label>
-                <button class=" btn btn-small btn-success btnDecrement">-</button>
-                <input type="text" id="txtSocauhoi" disabled=true />
-                <button class="btn btn-small btn-success btnIncrement">+</button>
-            </div>
-            <div class="mt-2"><label for="txtThoigian" style="width : 120px"> Thời gian(m) </label>
-                <button class="btn btn-small btn-success btnDecrement">-</button>
-                <input type="text" id="txtThoigian" disabled=true />
-                <button class="btn btn-small btn-success btnIncrement">+</button>
-            </div>
-            <div id="roomStatus" class="alert alert-warning alert-small mt-2" style="display: inline-block;"> Đang chờ
-                chủ phòng bắt đầu bài thi
-            </div>
-            <button style="display: none; " class="btn btn-primary text-center mt-2" id="btnStart"> Bắt đầu</button>
+                        <button style="display: none; " class="btn btn-primary text-center mt-2" id="btnStartLuyentap">
+                            Bắt
+                            đầu</button>
+                        <button style="display: none; " class="btn btn-primary text-center mt-2" id="btnStart"> Bắt
+                            đầu</button>
+                    </td>
+                </tr>
 
-            <!-- <div class="text-large" id="question">THIS IS A PLACEHOLDER!</div> -->
-        </td>
-    </tr>
-
-    <tr class="colorPrimary row_very_big" id="game">
-        <td>
+            </table>
             <table id="game">
                 <tr class="row_big colorSecondary">
                     <td colspan="2">
@@ -89,4 +106,19 @@
 
         </td>
     </tr>
+
 </table>
+
+
+<!-- 
+  
+
+    
+
+    <tr class="colorPrimary row_very_big" id="game">
+        <td>
+            
+
+        </td>
+    </tr>
+ -->
