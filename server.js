@@ -34,69 +34,15 @@ io.on("connection", (socket) => {
   console.log(socket.id);
   getSession(socket);
   login(socket);
+  register(socket);
   createRoom(socket);
   joinRoom(socket);
   leaveRoom(socket);
-  socket.on("client-send-room-info-before-start", (room) => {
-    rooms[room._name]._totalQuestion = room._totalQuestion;
-    rooms[room._name]._time = room._time;
-    rooms[room._name]._status = room._status;
-    prepareGame(rooms[room._name]);
-    console.log(rooms[room._name]);
-
-    io.sockets.emit("update-rooms", rooms);
-    io.to(room._name).emit("display-game-form");
-    io.to(room._name).emit("update-room-info-before-start", room);
-    nextQuestion(socket, rooms[room._name]);
-    startTimer = setInterval(() => {
-      if (
-        rooms[room._name] == undefined ||
-        (rooms[room._name]._indexQuestion ==
-          rooms[room._name]._totalQuestion - 1 &&
-          timeRemaining == 0)
-      )
-        clearInterval(startTimer);
-      else questionTimer(socket, rooms[room._name]);
-    }, 1000);
-  });
+  startGame(socket);
   luyentap(socket);
-
-  socket.on("click", function (data) {
-    if (rooms[data.room]._isQuestionRunning) {
-      rooms[data.room]._players[data.player]._locked = true;
-      rooms[data.room]._players[data.player]._lockedAnswer = data.letter;
-      socket.emit("lock_answer", data.letter);
-    }
-  });
-
-  socket.on("logout", () => {
-    console.log(" someone just logged out");
-    if (isLogin(socket.username) && socket.username != undefined) {
-      delete players[socket.username];
-    }
-  });
-  socket.on("disconnect", () => {
-    console.log(socket.username, " out");
-    for (let room in rooms) {
-      if (Object.keys(rooms[room]._players).indexOf(socket.username) >= 0) {
-        var len = Object.keys(rooms[room]._players).length;
-        if (len == 1) {
-          delete rooms[room];
-        } else {
-          var master = rooms[room]._master;
-          if (master == rooms[room]._players[socket.username]._name) {
-            delete rooms[room]._players[socket.username];
-            rooms[room]._master = Object.keys(rooms[room]._players)[0];
-            let id = rooms[room]._players[rooms[room]._master]._socketId;
-            io.to(`${id}`).emit("display-master", rooms[room]);
-          } else delete rooms[room]._players[socket.username];
-
-          io.to(room).emit("update-user", rooms[room]);
-        }
-        io.sockets.emit("update-rooms", rooms);
-      }
-    }
-  });
+  click(socket);
+  logout(socket);
+  user_disconnect(socket);
 });
 
 function getSession(socket) {
@@ -137,6 +83,7 @@ function login(socket) {
 }
 function register(socket) {
   socket.on("register", async (userInfo) => {
+    console.log("alo : ", userInfo);
     let message = "";
     const userExisted = await User.findOne({
       where: { username: userInfo.username },
@@ -408,5 +355,74 @@ function luyentap(socket) {
         clearInterval(startTimer);
       else questionTimer(socket, ltRoom);
     }, 1000);
+  });
+}
+
+function click(socket) {
+  socket.on("click", function (data) {
+    if (rooms[data.room]._isQuestionRunning) {
+      rooms[data.room]._players[data.player]._locked = true;
+      rooms[data.room]._players[data.player]._lockedAnswer = data.letter;
+      socket.emit("lock_answer", data.letter);
+    }
+  });
+}
+
+function user_disconnect(socket) {
+  socket.on("disconnect", () => {
+    console.log(socket.username, " out");
+    for (let room in rooms) {
+      if (Object.keys(rooms[room]._players).indexOf(socket.username) >= 0) {
+        var len = Object.keys(rooms[room]._players).length;
+        if (len == 1) {
+          delete rooms[room];
+        } else {
+          var master = rooms[room]._master;
+          if (master == rooms[room]._players[socket.username]._name) {
+            delete rooms[room]._players[socket.username];
+            rooms[room]._master = Object.keys(rooms[room]._players)[0];
+            let id = rooms[room]._players[rooms[room]._master]._socketId;
+            io.to(`${id}`).emit("display-master", rooms[room]);
+          } else delete rooms[room]._players[socket.username];
+
+          io.to(room).emit("update-user", rooms[room]);
+        }
+        io.sockets.emit("update-rooms", rooms);
+      }
+    }
+  });
+}
+
+function startGame(socket) {
+  socket.on("client-send-room-info-before-start", (room) => {
+    rooms[room._name]._totalQuestion = room._totalQuestion;
+    rooms[room._name]._time = room._time;
+    rooms[room._name]._status = room._status;
+    prepareGame(rooms[room._name]);
+    console.log(rooms[room._name]);
+
+    io.sockets.emit("update-rooms", rooms);
+    io.to(room._name).emit("display-game-form");
+    io.to(room._name).emit("update-room-info-before-start", room);
+    nextQuestion(socket, rooms[room._name]);
+    startTimer = setInterval(() => {
+      if (
+        rooms[room._name] == undefined ||
+        (rooms[room._name]._indexQuestion ==
+          rooms[room._name]._totalQuestion - 1 &&
+          timeRemaining == 0)
+      )
+        clearInterval(startTimer);
+      else questionTimer(socket, rooms[room._name]);
+    }, 1000);
+  });
+}
+
+function logout(socket) {
+  socket.on("logout", () => {
+    console.log(" someone just logged out");
+    if (isLogin(socket.username) && socket.username != undefined) {
+      delete players[socket.username];
+    }
   });
 }

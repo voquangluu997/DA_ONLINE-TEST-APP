@@ -21,7 +21,6 @@ socket.on("register-failed", (data) => {
   );
 });
 
-
 socket.on("createRoom-failed", (data) => {
   alert(data.message);
 });
@@ -271,8 +270,8 @@ $(document).ready(function () {
 
   $("#btn-register").click(function () {
     socket.emit("register", {
-      username: $("#username").val(),
-      password: $("#password").val(),
+      username: $("#register_username").val(),
+      password: $("#register_password").val(),
     });
   });
 

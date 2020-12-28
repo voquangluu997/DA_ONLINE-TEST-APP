@@ -2,8 +2,8 @@ class Room {
   constructor() {
     this.status = "waiting";
     this.players = {};
-    this.totalQuestion = 10;
-    this.time = 20;
+    this.totalQuestion = 3;
+    this.time = 3;
     this.indexQuestion = -1;
     this.isQuestionRunning = false;
   }
